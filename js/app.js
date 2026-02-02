@@ -31,6 +31,7 @@ function imageApp() {
     isDragging: false,
     excessMessage: '',
     replaceSlotIndex: null,
+    selectedSlot: null,
     srAnnouncement: '',
 
 
@@ -435,6 +436,7 @@ function imageApp() {
       this.isDragging = false;
       this.excessMessage = '';
       this.replaceSlotIndex = null;
+      this.selectedSlot = null;
       this.announce('Application reset. Starting over.');
       this.goToStep('landing');
     },

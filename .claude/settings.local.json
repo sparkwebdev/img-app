@@ -6,7 +6,10 @@
       "WebFetch(domain:cdn.jsdelivr.net)",
       "WebFetch(domain:cdnjs.cloudflare.com)",
       "WebFetch(domain:www.npmjs.com)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nArt Walk Weekends image preparation tool\n\nFully client-side image processing app. Users enter their artist name,\nupload 5 images, the app validates/processes them in-browser via Canvas\nAPI, and provides individual or bulk downloads as optimised JPEGs.\n\nSupports JPG, PNG, WebP, and HEIC input formats with lazy-loaded\nheic-to library for HEIC conversion.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nUpdate image requirements text\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

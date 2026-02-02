@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Art Walk Weekends – Image Preparation Tool</title>
+  <title>Art Walk Weekends – Image Prep Tool</title>
 
   <!-- IBM Plex Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,10 +40,9 @@
       class="step-panel"
       x-show="currentStep === 'landing'"
       x-transition:enter="step-enter"
-      x-transition:leave="step-leave"
       aria-labelledby="landing-heading"
     >
-      <h1 id="landing-heading" class="step-heading" x-ref="landingHeading">Image Preparation Tool</h1>
+      <h1 id="landing-heading" class="step-heading" x-ref="landingHeading">Image Prep Tool</h1>
       <p class="step-description">
         This tool prepares your artwork images for Art Walk Weekends.
       </p>
@@ -55,11 +54,14 @@
           <li>JPG format is preferred</li>
           <li>PNG, WebP, or HEIC format is supported</li>
           <li>Minimum 1500px on the longest edge</li>
-          <li>Maximum 10MB  per image</li>
+          <li>Maximum 10MB per image</li>
         </ul>
       </div>
 
-      <button class="btn btn-primary" @click="goToStep('name')">Get Started</button>
+      <div class="btn-row">
+        <span></span>
+        <button class="btn btn-primary" @click="goToStep('name')">Get Started</button>
+      </div>
     </section>
 
     <!-- ============ STEP 2: Artist Name ============ -->
@@ -67,7 +69,6 @@
       class="step-panel"
       x-show="currentStep === 'name'"
       x-transition:enter="step-enter"
-      x-transition:leave="step-leave"
       aria-labelledby="name-heading"
     >
       <h1 id="name-heading" class="step-heading" x-ref="nameHeading">Enter Your Name</h1>
@@ -112,12 +113,11 @@
       class="step-panel"
       x-show="currentStep === 'upload'"
       x-transition:enter="step-enter"
-      x-transition:leave="step-leave"
       aria-labelledby="upload-heading"
     >
       <h1 id="upload-heading" class="step-heading" x-ref="uploadHeading">Upload Your Images</h1>
       <p class="step-description">
-        Add 5 images for processing. Drag and drop or click to browse.
+        Add 5 images for processing. Drag and drop or click to browse. Click an image to remove it.
       </p>
 
       <!-- Drag-and-drop zone (hidden once all slots filled) -->
@@ -183,7 +183,7 @@
             </div>
 
             <!-- Thumbnail (visible for validating, valid, processing, done) -->
-            <div class="slot-thumbnail-wrap" x-show="slot.status !== 'empty' && slot.status !== 'error'">
+            <div class="slot-thumbnail-wrap" x-show="slot.status !== 'empty' && slot.status !== 'error'" @click="slot.status === 'valid' ? (selectedSlot = selectedSlot === index ? null : index) : null">
               <img
                 class="slot-thumbnail"
                 :src="slot.status === 'done' ? slot.processedUrl : slot.originalUrl"
@@ -199,15 +199,16 @@
               <div class="slot-badge" x-show="slot.status === 'valid' || slot.status === 'done'" aria-hidden="true">
                 <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L7 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
               </div>
-              <!-- Remove button for valid slots -->
-              <button
-                class="slot-remove"
-                x-show="slot.status === 'valid'"
-                @click.stop="clearSlot(index)"
-                aria-label="Remove image"
+              <!-- Delete overlay (shown on click for valid slots) -->
+              <div
+                class="slot-delete-overlay"
+                x-show="slot.status === 'valid' && selectedSlot === index"
+                @click.stop
+                @click.outside="selectedSlot = null"
               >
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-              </button>
+                <button class="btn btn-sm btn-delete" @click.stop="clearSlot(index); selectedSlot = null">Remove</button>
+                <button class="btn btn-sm btn-secondary" @click.stop="selectedSlot = null">Cancel</button>
+              </div>
               <span class="slot-number" x-text="(index + 1)"></span>
             </div>
 
@@ -267,7 +268,6 @@
       class="step-panel"
       x-show="currentStep === 'results'"
       x-transition:enter="step-enter"
-      x-transition:leave="step-leave"
       aria-labelledby="results-heading"
     >
       <h1 id="results-heading" class="step-heading" x-ref="resultsHeading">Your Images Are Ready</h1>
