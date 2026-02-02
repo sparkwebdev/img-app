@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:artwalkporty.co.uk)",
+      "WebFetch(domain:www.artwalkporty.co.uk)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "WebFetch(domain:cdnjs.cloudflare.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebSearch"
+    ]
+  }
+}

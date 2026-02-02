@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Art Walk Weekends – Image Preparation Tool</title>
+
+  <!-- IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- App scripts -->
+  <script src="js/image-processor.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-container" x-data="imageApp()" x-cloak>
+
+    <!-- Screen reader announcements -->
+    <div class="sr-only" aria-live="polite" x-text="srAnnouncement"></div>
+
+    <!-- Header -->
+    <header class="app-header">
+      <img
+        src="https://www.artwalkporty.co.uk/wp-content/uploads/2023/07/AWProjects2023-360x139.png"
+        alt="Art Walk Porty Projects"
+        class="app-logo"
+      >
+    </header>
+
+    <!-- ============ STEP 1: Landing ============ -->
+    <section
+      class="step-panel"
+      x-show="currentStep === 'landing'"
+      x-transition:enter="step-enter"
+      x-transition:leave="step-leave"
+      aria-labelledby="landing-heading"
+    >
+      <h1 id="landing-heading" class="step-heading" x-ref="landingHeading">Image Preparation Tool</h1>
+      <p class="step-description">
+        This tool prepares your artwork images for Art Walk Weekends.
+      </p>
+
+      <div class="rules-card">
+        <h2 class="rules-heading">Image requirements</h2>
+        <ul class="rules-list">
+          <li>5 images required</li>
+          <li>JPG format is preferred</li>
+          <li>PNG, WebP, or HEIC format is supported</li>
+          <li>Minimum 1500px on the longest edge</li>
+          <li>Maximum 10MB  per image</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-primary" @click="goToStep('name')">Get Started</button>
+    </section>
+
+    <!-- ============ STEP 2: Artist Name ============ -->
+    <section
+      class="step-panel"
+      x-show="currentStep === 'name'"
+      x-transition:enter="step-enter"
+      x-transition:leave="step-leave"
+      aria-labelledby="name-heading"
+    >
+      <h1 id="name-heading" class="step-heading" x-ref="nameHeading">Enter Your Name</h1>
+      <p class="step-description">
+        Your name will be used to create the output filenames.
+      </p>
+
+      <div class="name-form">
+        <label for="artist-name" class="form-label">Artist / Full Name</label>
+        <input
+          id="artist-name"
+          type="text"
+          class="form-input"
+          :class="{ 'form-input--error': artistNameError }"
+          x-model="artistName"
+          @input="artistNameError = ''"
+          @keydown.enter="confirmName()"
+          placeholder="e.g. Jane Smith"
+          autocomplete="name"
+          aria-describedby="name-error name-preview"
+        >
+        <p
+          id="name-error"
+          class="form-error"
+          x-show="artistNameError"
+          x-text="artistNameError"
+          role="alert"
+        ></p>
+        <p id="name-preview" class="name-preview" x-show="artistName.trim().length > 0">
+          Filenames will look like: <strong x-text="sanitizedName + '-1.jpg'"></strong>
+        </p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" @click="goToStep('landing')">Back</button>
+        <button class="btn btn-primary" @click="confirmName()">Confirm &amp; Continue</button>
+      </div>
+    </section>
+
+    <!-- ============ STEP 3: Upload + Validation ============ -->
+    <section
+      class="step-panel"
+      x-show="currentStep === 'upload'"
+      x-transition:enter="step-enter"
+      x-transition:leave="step-leave"
+      aria-labelledby="upload-heading"
+    >
+      <h1 id="upload-heading" class="step-heading" x-ref="uploadHeading">Upload Your Images</h1>
+      <p class="step-description">
+        Add 5 images for processing. Drag and drop or click to browse.
+      </p>
+
+      <!-- Drag-and-drop zone (hidden once all slots filled) -->
+      <div
+        class="dropzone"
+        x-show="emptySlotCount > 0 && !isProcessing"
+        :class="{ 'dropzone--active': isDragging }"
+        @dragenter.prevent="isDragging = true"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="isDragging = false; handleFiles($event.dataTransfer.files)"
+        @click="$refs.fileInput.click()"
+        @keydown.enter.prevent="$refs.fileInput.click()"
+        @keydown.space.prevent="$refs.fileInput.click()"
+        role="button"
+        tabindex="0"
+        aria-label="Drop images here or click to browse"
+      >
+        <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p class="dropzone-text">
+          <span x-show="!isDragging">Drag &amp; drop images here, or click to browse</span>
+          <span x-show="isDragging">Drop images here</span>
+        </p>
+        <p class="dropzone-hint" x-text="emptySlotCount + ' slot' + (emptySlotCount !== 1 ? 's' : '') + ' remaining'"></p>
+      </div>
+
+      <input
+        type="file"
+        x-ref="fileInput"
+        class="sr-only"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+        multiple
+        @change="handleFiles($event.target.files); $event.target.value = ''"
+      >
+
+      <!-- Excess files message -->
+      <p class="info-message" x-show="excessMessage" x-text="excessMessage" role="status"></p>
+
+      <!-- 5-slot grid -->
+      <div class="slot-grid" role="list" aria-label="Image slots">
+        <template x-for="(slot, index) in slots" :key="slot.id">
+          <div
+            class="slot"
+            :class="{
+              'slot--empty': slot.status === 'empty',
+              'slot--validating': slot.status === 'validating',
+              'slot--valid': slot.status === 'valid',
+              'slot--error': slot.status === 'error',
+              'slot--processing': slot.status === 'processing',
+              'slot--done': slot.status === 'done'
+            }"
+            role="listitem"
+            :aria-label="'Image slot ' + (index + 1) + ': ' + slot.status"
+          >
+            <!-- Empty state -->
+            <div class="slot-empty" x-show="slot.status === 'empty'" @click="uploadToSlot(index)">
+              <svg class="slot-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+              </svg>
+              <span class="slot-label" x-text="(index + 1)"></span>
+            </div>
+
+            <!-- Thumbnail (visible for validating, valid, processing, done) -->
+            <div class="slot-thumbnail-wrap" x-show="slot.status !== 'empty' && slot.status !== 'error'">
+              <img
+                class="slot-thumbnail"
+                :src="slot.status === 'done' ? slot.processedUrl : slot.originalUrl"
+                :alt="'Image ' + (index + 1)"
+                x-show="slot.originalUrl || slot.processedUrl"
+              >
+              <!-- Spinner overlay for validating / processing -->
+              <div class="slot-overlay" x-show="slot.status === 'validating' || slot.status === 'processing'">
+                <div class="spinner" aria-hidden="true"></div>
+                <span class="sr-only" x-text="slot.status === 'validating' ? 'Validating image...' : 'Processing image...'"></span>
+              </div>
+              <!-- Checkmark badge for valid / done -->
+              <div class="slot-badge" x-show="slot.status === 'valid' || slot.status === 'done'" aria-hidden="true">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L7 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              </div>
+              <!-- Remove button for valid slots -->
+              <button
+                class="slot-remove"
+                x-show="slot.status === 'valid'"
+                @click.stop="clearSlot(index)"
+                aria-label="Remove image"
+              >
+                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+              </button>
+              <span class="slot-number" x-text="(index + 1)"></span>
+            </div>
+
+            <!-- Error state -->
+            <div class="slot-error" x-show="slot.status === 'error'">
+              <svg class="slot-error-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <p class="slot-error-text" x-text="slot.error" role="alert"></p>
+              <button class="btn btn-sm btn-secondary" @click="reUploadSlot(index)">Replace</button>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Hidden single-file input for slot replacement -->
+      <input
+        type="file"
+        x-ref="slotFileInput"
+        class="sr-only"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+        @change="handleSlotReplace($event.target.files); $event.target.value = ''"
+      >
+
+      <!-- Process button + progress -->
+      <div class="process-section">
+        <div class="btn-row" x-show="!isProcessing">
+          <button class="btn btn-secondary" @click="goToStep('name')">Back</button>
+          <button
+            class="btn btn-primary btn-lg"
+            :disabled="!allSlotsValid || isProcessing"
+            @click="processAllImages()"
+          >
+            Process All Images
+          </button>
+        </div>
+
+        <div
+          class="progress-wrap"
+          x-show="isProcessing"
+          role="progressbar"
+          :aria-valuenow="processingProgress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-label="Image processing progress"
+        >
+          <div class="progress-bar">
+            <div class="progress-fill" :style="'width:' + processingProgress + '%'"></div>
+          </div>
+          <p class="progress-text" x-text="'Processing image ' + processingCurrent + ' of 5...'"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 4: Results ============ -->
+    <section
+      class="step-panel"
+      x-show="currentStep === 'results'"
+      x-transition:enter="step-enter"
+      x-transition:leave="step-leave"
+      aria-labelledby="results-heading"
+    >
+      <h1 id="results-heading" class="step-heading" x-ref="resultsHeading">Your Images Are Ready</h1>
+      <p class="step-description">
+        All 5 images have been processed and are ready for download.
+      </p>
+
+      <!-- Results list -->
+      <div class="results-list" role="list" aria-label="Processed images">
+        <template x-for="(slot, index) in slots" :key="slot.id">
+          <div class="result-row" role="listitem">
+            <img
+              class="result-thumbnail"
+              :src="slot.processedUrl"
+              :alt="filename(index)"
+            >
+            <p class="result-filename" x-text="filename(index)"></p>
+            <p class="result-size" x-text="formatBytes(slot.processedBlob ? slot.processedBlob.size : 0)"></p>
+            <button class="btn btn-sm btn-secondary" @click="downloadSingle(index)">
+              Download
+            </button>
+          </div>
+        </template>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" @click="resetApp()">Start Over</button>
+        <button class="btn btn-primary btn-lg" @click="downloadAll()">
+          Download All
+        </button>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; Art Walk Porty Projects. All processing is done locally in your browser.</p>
+    </footer>
+
+  </div>
+</body>
+</html>
