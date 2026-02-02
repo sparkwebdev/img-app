@@ -51,15 +51,15 @@
         <h2 class="rules-heading">Image requirements</h2>
         <ul class="rules-list">
           <li>5 images required</li>
-          <li>JPG format is preferred</li>
-          <li>PNG, WebP, or HEIC format is supported</li>
+          <li aria-describedby="footnote-format">JPG format is preferred <em>(PNG, WebP, and HEIC format is supported<sup> *</sup>)</em></li>
           <li>Minimum 1500px on the longest edge</li>
           <li>Maximum 10MB per image</li>
         </ul>
       </div>
+      
 
       <div class="btn-row">
-        <span></span>
+        <p id="footnote-format"><small><em><sup>*</sup> All images will be converted to JPG</em></small></p>
         <button class="btn btn-primary" @click="goToStep('name')">Get Started</button>
       </div>
     </section>
