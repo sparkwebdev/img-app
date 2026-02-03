@@ -383,17 +383,6 @@ function imageApp() {
       this._fallbackDownload(slot.processedUrl, this.filename(index));
     },
 
-    async downloadAll() {
-      this.announce('Downloading all images.');
-      for (let i = 0; i < this.slots.length; i++) {
-        this.downloadSingle(i);
-        // Stagger downloads so browsers don't block them
-        if (i < this.slots.length - 1) {
-          await new Promise(r => setTimeout(r, 500));
-        }
-      }
-    },
-
     /**
      * Fallback download using <a> element.
      */
