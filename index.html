@@ -35,16 +35,41 @@
       >
     </header>
 
+    <!-- Browser Compatibility Warning -->
+    <section
+      class="step-panel browser-warning"
+      x-show="!browserSupported"
+      role="alert"
+    >
+      <h1 class="step-heading">Browser Not Supported</h1>
+      <p class="step-description">
+        Your browser doesn't support features required by this tool.
+      </p>
+      <div class="rules-card">
+        <h2 class="rules-heading">Missing features:</h2>
+        <ul class="rules-list">
+          <template x-for="feature in missingFeatures" :key="feature">
+            <li x-text="feature"></li>
+          </template>
+        </ul>
+      </div>
+      <p class="step-note">
+        Please update your browser or try a modern browser like Chrome, Firefox, Safari, or Edge.
+      </p>
+    </section>
+
     <!-- ============ STEP 1: Landing ============ -->
     <section
       class="step-panel"
-      x-show="currentStep === 'landing'"
+      x-show="browserSupported && currentStep === 'landing'"
       x-transition:enter="step-enter"
       aria-labelledby="landing-heading"
     >
       <h1 id="landing-heading" class="step-heading" x-ref="landingHeading">Image Prep Tool</h1>
       <p class="step-description">
         This tool prepares your artwork images for Art Walk Weekends.
+      </p>
+      <p class="step-note">
         <strong>Note: this does not submit your images, please still attach to your submission when applying.</strong>
       </p>
 
@@ -68,7 +93,7 @@
     <!-- ============ STEP 2: Artist Name ============ -->
     <section
       class="step-panel"
-      x-show="currentStep === 'name'"
+      x-show="browserSupported && currentStep === 'name'"
       x-transition:enter="step-enter"
       aria-labelledby="name-heading"
     >
@@ -112,7 +137,7 @@
     <!-- ============ STEP 3: Upload + Validation ============ -->
     <section
       class="step-panel"
-      x-show="currentStep === 'upload'"
+      x-show="browserSupported && currentStep === 'upload'"
       x-transition:enter="step-enter"
       aria-labelledby="upload-heading"
     >
@@ -267,7 +292,7 @@
     <!-- ============ STEP 4: Results ============ -->
     <section
       class="step-panel"
-      x-show="currentStep === 'results'"
+      x-show="browserSupported && currentStep === 'results'"
       x-transition:enter="step-enter"
       aria-labelledby="results-heading"
     >

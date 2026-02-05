@@ -3,8 +3,67 @@
  * Alpine.js application component
  */
 
+/**
+ * Feature detection for required browser capabilities.
+ * Returns { supported: boolean, missing: string[] }
+ */
+function checkBrowserSupport() {
+  const missing = [];
+
+  // Canvas 2D context
+  try {
+    const canvas = document.createElement('canvas');
+    if (!canvas.getContext || !canvas.getContext('2d')) {
+      missing.push('Canvas');
+    }
+  } catch (e) {
+    missing.push('Canvas');
+  }
+
+  // canvas.toBlob (for JPEG compression)
+  try {
+    const canvas = document.createElement('canvas');
+    if (typeof canvas.toBlob !== 'function') {
+      missing.push('Canvas image export');
+    }
+  } catch (e) {
+    missing.push('Canvas image export');
+  }
+
+  // URL.createObjectURL (for image previews)
+  if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
+    missing.push('File URLs');
+  }
+
+  // File constructor (for HEIC conversion)
+  try {
+    new File([''], 'test.txt', { type: 'text/plain' });
+  } catch (e) {
+    missing.push('File handling');
+  }
+
+  // Promises (baseline for async/await)
+  if (typeof Promise === 'undefined') {
+    missing.push('Promises');
+  }
+
+  // Array.from
+  if (typeof Array.from !== 'function') {
+    missing.push('Modern arrays');
+  }
+
+  return {
+    supported: missing.length === 0,
+    missing: missing
+  };
+}
+
 function imageApp() {
   return {
+    // ---- Browser support ----
+    browserSupported: true,
+    missingFeatures: [],
+
     // ---- Step state ----
     currentStep: 'landing',
 
@@ -74,6 +133,15 @@ function imageApp() {
     // ========================
 
     init() {
+      // Check browser support
+      const support = checkBrowserSupport();
+      this.browserSupported = support.supported;
+      this.missingFeatures = support.missing;
+
+      if (!this.browserSupported) {
+        return; // Don't set up the rest if browser is unsupported
+      }
+
       // Warn before leaving once work has started
       window.addEventListener('beforeunload', (e) => {
         if (this.currentStep !== 'landing') {
@@ -199,7 +267,7 @@ function imageApp() {
     async _convertHeic(file) {
       await this._loadHeicLib();
       if (typeof HeicTo === 'undefined') {
-        throw new Error('HEIC support is not available. Please convert to JPG or PNG first.');
+        throw new Error('HEIC not supported. Use JPG/PNG.');
       }
       try {
         const jpegBlob = await HeicTo({ blob: file, type: 'image/jpeg', quality: 0.95 });
@@ -207,7 +275,7 @@ function imageApp() {
         return new File([jpegBlob], newName, { type: 'image/jpeg' });
       } catch (err) {
         console.error('heic-to error:', err);
-        throw new Error('Could not convert HEIC file. Please convert to JPG or PNG first.');
+        throw new Error('HEIC conversion failed. Use JPG/PNG.');
       }
     },
 
@@ -227,7 +295,7 @@ function imageApp() {
           s.originalFile.name === file.name && s.originalFile.size === file.size
         );
         if (isDuplicate) {
-          throw new Error('This file has already been added.');
+          throw new Error('Duplicate file.');
         }
 
         slot.originalFile = file;
@@ -236,7 +304,7 @@ function imageApp() {
         const maxSize = 10 * 1024 * 1024;
         if (file.size > maxSize) {
           const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-          throw new Error('File is too large (' + sizeMB + 'MB). Maximum is 10MB.');
+          throw new Error('Too large (' + sizeMB + 'MB). Max 10MB.');
         }
 
         // Convert HEIC to JPEG before remaining validation
@@ -272,7 +340,7 @@ function imageApp() {
       // 1. File type (HEIC already converted to JPEG before reaching here)
       const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
       if (!validTypes.includes(file.type)) {
-        throw new Error('Only JPG, PNG, WebP, and HEIC files are accepted.');
+        throw new Error('Use JPG, PNG, WebP, or HEIC.');
       }
 
       // 2. Dimensions (longest edge >= 1500px)
@@ -280,12 +348,12 @@ function imageApp() {
       try {
         dims = await ImageProcessor.getDimensions(file);
       } catch {
-        throw new Error('This file could not be read as an image.');
+        throw new Error('Cannot read image.');
       }
 
       const longest = Math.max(dims.width, dims.height);
       if (longest < 1500) {
-        throw new Error('Image is too small (' + longest + 'px). Minimum 1500px on longest edge.');
+        throw new Error('Too small (' + longest + 'px). Min 1500px.');
       }
     },
 
