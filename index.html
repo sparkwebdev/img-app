@@ -29,7 +29,7 @@
     <!-- Header -->
     <header class="app-header">
       <img
-        src="https://www.artwalkporty.co.uk/wp-content/uploads/2023/07/AWProjects2023-360x139.png"
+        src="images/logo.png"
         alt="Art Walk Porty Projects"
         class="app-logo"
       >
@@ -45,6 +45,7 @@
       <h1 id="landing-heading" class="step-heading" x-ref="landingHeading">Image Prep Tool</h1>
       <p class="step-description">
         This tool prepares your artwork images for Art Walk Weekends.
+        <strong>Note: this does not submit your images, please still attach to your submission when applying.</strong>
       </p>
 
       <div class="rules-card">
@@ -286,7 +287,7 @@
             >
             <p class="result-filename" x-text="filename(index)"></p>
             <p class="result-size" x-text="formatBytes(slot.processedBlob ? slot.processedBlob.size : 0)"></p>
-            <button class="btn btn-sm btn-secondary" @click="downloadSingle(index)">
+            <button class="btn btn-primary" @click="downloadSingle(index)">
               Download
             </button>
           </div>
