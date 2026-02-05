@@ -142,9 +142,6 @@
       aria-labelledby="upload-heading"
     >
       <h1 id="upload-heading" class="step-heading" x-ref="uploadHeading">Upload Your Images</h1>
-      <p class="step-description">
-        Add 5 images for processing. Drag and drop or click to browse. Click an image to remove it.
-      </p>
 
       <!-- Drag-and-drop zone (hidden once all slots filled) -->
       <div
@@ -169,7 +166,7 @@
           <span x-show="!isDragging">Drag &amp; drop images here, or click to browse</span>
           <span x-show="isDragging">Drop images here</span>
         </p>
-        <p class="dropzone-hint" x-text="emptySlotCount + ' slot' + (emptySlotCount !== 1 ? 's' : '') + ' remaining'"></p>
+        <p class="dropzone-hint" x-text="emptySlotCount + ' slot' + (emptySlotCount !== 1 ? 's' : '') + ' remaining. Click an image to remove it.'"></p>
       </div>
 
       <input
