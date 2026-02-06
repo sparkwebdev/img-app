@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <title>Art Walk Weekends – Image Prep Tool</title>
 
   <!-- IBM Plex Mono -->
@@ -327,5 +328,33 @@
     </footer>
 
   </div>
+
+  <!-- Fallback for browsers where Alpine/ES6 fails to load -->
+  <div id="browser-fallback" class="app-container" style="display:none">
+    <header class="app-header">
+      <img src="images/logo.png" alt="Art Walk Porty Projects" class="app-logo">
+    </header>
+    <section class="step-panel browser-warning" role="alert">
+      <h1 class="step-heading">Browser Not Supported</h1>
+      <p class="step-description">
+        Your browser doesn't support features required by this tool.
+      </p>
+      <p class="step-note">
+        Please update your browser or try a modern browser like Chrome, Firefox, Safari, or Edge.
+      </p>
+    </section>
+  </div>
+
+  <script>
+    // ES5-compatible: show fallback if Alpine failed to initialize
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        if (document.querySelector('[x-cloak]')) {
+          var fb = document.getElementById('browser-fallback');
+          if (fb) fb.style.display = '';
+        }
+      }, 500);
+    });
+  </script>
 </body>
 </html>
