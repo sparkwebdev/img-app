@@ -11,7 +11,13 @@
       "Bash(git commit -m \"$\\(cat <<''EOF''\nArt Walk Weekends image preparation tool\n\nFully client-side image processing app. Users enter their artist name,\nupload 5 images, the app validates/processes them in-browser via Canvas\nAPI, and provides individual or bulk downloads as optimised JPEGs.\n\nSupports JPG, PNG, WebP, and HEIC input formats with lazy-loaded\nheic-to library for HEIC conversion.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nUpdate image requirements text\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(gh repo create:*)",
-      "Bash(netlify:*)"
+      "Bash(netlify:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nUI improvements and browser compatibility\n\n- Move note to separate line with black text\n- Shorten error messages and reduce font size\n- Add browser feature detection with compatibility warning\n- Improve mobile results layout with CSS Grid\n- Reduce mobile heading font size\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)",
+      "Bash(python3:*)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(git push:*)"
     ]
   }
 }
